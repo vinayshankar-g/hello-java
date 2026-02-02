@@ -1,11 +1,15 @@
 pipeline {
     agent any
+
+
     stages {
+
         stage('Checkout Code') {
             steps {
                 echo 'Code already checked out from Git'
             }
         }
+
     stage('Compile Java') {
         steps {
             sh '''
@@ -16,22 +20,26 @@ pipeline {
             '''
         }
     }
+
+
         stage('Prepare Package Directory') {
             steps {
                 sh '''
-                '''
                     mkdir -p package/usr/local/bin
                     cp hello.jar package/usr/local/bin/
+                '''
             }
         }
+
         stage('Build DEB using FPM') {
             steps {
                 sh '''
-                    fpm -s dir -t deb -n hello-java -v 1.0.${BU
+                    fpm -s dir -t deb -n hello-java -v 1.0.${BUILD_NUMBER} --prefix=/ -C package
                 '''
             }
         }
     }
+
     post {
         success {
             archiveArtifacts artifacts: '*.deb'
